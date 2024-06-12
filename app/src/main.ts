@@ -26,21 +26,31 @@ class Input {
 }
 
 
-const getWhatToDo = (input: Input): Command => {
+const HurdleRace = (input: Input): Record<Command, number> => {
     const course = input.course + ".....";
     console.error(course);
     const players_position = [input.p1_position, input.p2_position, input.p3_position][playerIdx];
     const forward = course.slice(players_position + 1);
     console.error(forward);
 
-    if (forward.charAt(0) === "#") {
-        return "UP";
-    } else if (forward.charAt(1) === "#") {
-        return "LEFT";
-    } else if (forward.charAt(2) === "#") {
-        return "DOWN";
+    // if (forward.charAt(0) === "#") {
+    //     return "UP";
+    // } else if (forward.charAt(1) === "#") {
+    //     return "LEFT";
+    // } else if (forward.charAt(2) === "#") {
+    //     return "DOWN";
+    // }
+    // return "RIGHT";
+    const up: number = forward.charAt(0) === "#" ? 10 : forward.charAt(2) === "#" ? 10 : forward.charAt(1) === "#" ? -3 : 0;
+    const left: number = forward.charAt(1) === "#" ? 3 : -1;
+    const down: number = -10;
+    const right: number = (forward.charAt(0) === "#" || forward.charAt(1) === "#") ? -2 : 1;
+    return {
+        "UP": up,
+        "LEFT": left,
+        "DOWN": down,
+        "RIGHT": right
     }
-    return "RIGHT";
 }
 
 
@@ -53,6 +63,12 @@ while (true) {
     for (let i = 0; i < 3; i++) {
         const scoreInfo: string = readline();
     }
+    let totalScore: Record<Command, number> = {
+        "UP": 0,
+        "LEFT": 0,
+        "DOWN": 0,
+        "RIGHT": 0
+    };
     for (let i = 0; i < nbGames; i++) {
         var inputs: string[] = readline().split(' ');
         const gpu: string = inputs[0];
@@ -65,11 +81,16 @@ while (true) {
         const reg6: number = parseInt(inputs[7]);
 
         const input: Input = new Input(gpu, reg0, reg1, reg2, reg3, reg4, reg5, reg6);
-        const command: Command = getWhatToDo(input);
-        console.log(command.toString());
+        const score: Record<Command, number> = HurdleRace(input);
+        console.error(score);
 
+        for (const key in score) {
+            totalScore[key] += score[key];
+        }
     }
 
+    const bestCommand: string = Object.keys(totalScore).reduce((a, b) => totalScore[a] > totalScore[b] ? a : b);
+    console.log(bestCommand);
     // Write an action using console.log()
     // To debug: console.error('Debug messages...');
 }
